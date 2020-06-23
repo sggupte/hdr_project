@@ -3,10 +3,12 @@
 % Code taken from Paul Debevec's SIGGRAPH'97 paper "Recovering High Dynamic Range
 % Radiance Maps from Photographs"
 %
+% RETURNS THE CAMERA RESPONSE FUNCTION! and the log film irradiance
 %
 % Given a set of pixel values observed for several pixels in several
-% images with different exposure times, this function returns the
-% imaging system's response function g as well as the log film irradiance
+% images with different exposure times, 
+% this function returns the imaging system's response function g 
+% as well as the log film irradiance
 % values for the observed pixels.
 %
 % Assumes:

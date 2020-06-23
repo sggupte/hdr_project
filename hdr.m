@@ -21,8 +21,8 @@ function [ hdr ] = hdr( filenames, gRed, gGreen, gBlue, w, dt )
         fprintf('Adding picture %i of %i \n', i, numExposures);
         image = double(imread(filenames{i}));
 
-        wij = w(image + 1);
-        sum = sum + wij;
+        wij = w(image + 1); % refers to the weight function % I guess it refers to the application of weights on the image
+        sum = sum + wij; % add the weight to the sum
 
         m(:,:,1) = (gRed(image(:,:,1) + 1) - dt(1,i));
         m(:,:,2) = (gGreen(image(:,:,2) + 1) - dt(1,i));

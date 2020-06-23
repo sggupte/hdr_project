@@ -50,7 +50,7 @@ fprintf('Computing weighting function\n');
 % for each pixel
 weights = [];
 for i=1:256
-    weights(i) = weight(i,1,256);
+    weights(i) = weight(i,1,256); % Creates the weight for each pixel and zmin,zmax
 end
 
 % load and sample the images
