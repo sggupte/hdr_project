@@ -22,11 +22,12 @@ function [ hdr ] = hdr( filenames, gRed, gGreen, gBlue, w, dt )
         image = double(imread(filenames{i}));
 
         wij = w(image + 1); % refers to the weight function % I guess it refers to the application of weights on the image
+        wij = wij(:,:,2);
         sum = sum + wij; % add the weight to the sum
 
-        m(:,:,1) = (gRed(image(:,:,1) + 1) - dt(1,i));
-        m(:,:,2) = (gGreen(image(:,:,2) + 1) - dt(1,i));
-        m(:,:,3) = (gBlue(image(:,:,3) + 1) - dt(1,i));
+        %m(:,:,1) = (gRed(image(:,:,1) + 1) - dt(1,i));
+        m(:,:) = (gGreen(image(:,:,2) + 1) - dt(1,i));
+        %m(:,:,3) = (gBlue(image(:,:,3) + 1) - dt(1,i));
 
         % If a pixel is saturated, its information and
         % that gathered from all prior pictures with longer exposure times is unreliable. Thus
@@ -35,23 +36,23 @@ function [ hdr ] = hdr( filenames, gRed, gGreen, gBlue, w, dt )
 
         saturatedPixels = ones(size(image));
 
-        saturatedPixelsRed = find(image(:,:,1) == 255);
+        %saturatedPixelsRed = find(image(:,:,1) == 255);
         saturatedPixelsGreen = find(image(:,:,2) == 255);
-        saturatedPixelsBlue = find(image(:,:,3) == 255);
+        %saturatedPixelsBlue = find(image(:,:,3) == 255);
 
         % Mark the saturated pixels from a certain channel in *all three* channels
         dim = size(image,1) * size(image,2);
-        saturatedPixels(saturatedPixelsRed) = 0;
-        saturatedPixels(saturatedPixelsRed + dim) = 0;
-        saturatedPixels(saturatedPixelsRed + 2*dim) = 0;
+        %saturatedPixels(saturatedPixelsRed) = 0;
+        %saturatedPixels(saturatedPixelsRed + dim) = 0;
+        %saturatedPixels(saturatedPixelsRed + 2*dim) = 0;
 
         saturatedPixels(saturatedPixelsGreen) = 0;
         saturatedPixels(saturatedPixelsGreen + dim) = 0;
         saturatedPixels(saturatedPixelsGreen + 2*dim) = 0;
 
-        saturatedPixels(saturatedPixelsBlue) = 0;
-        saturatedPixels(saturatedPixelsBlue + dim) = 0;
-        saturatedPixels(saturatedPixelsBlue + 2*dim) = 0;
+        %saturatedPixels(saturatedPixelsBlue) = 0;
+        %saturatedPixels(saturatedPixelsBlue + dim) = 0;
+        %saturatedPixels(saturatedPixelsBlue + 2*dim) = 0;
         
         % add the weighted sum of the current pic to the resulting hdr radiance map
         hdr = hdr + (wij .* m);
