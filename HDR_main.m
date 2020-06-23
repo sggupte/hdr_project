@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('HDR_Segmented/');
+dirName = ('HDR_Starters/Phantoms');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -34,12 +34,12 @@ numPixels = size(tmp,1) * size(tmp,2);
 numExposures = size(filenames,2);
 
 % Show the image sequence and the coresponding exposures
-% fprintf('Opening test images\n');
-% figure('units','normalized','outerposition',[0 0 1 1])
-% for i=1:size(filenames,2)
-% subplot(1,size(filenames,2),i),imshow(filenames{i});
-% title(['Image Exposure ' num2str(exposures(i))])
-% end
+fprintf('Opening test images\n');
+figure('units','normalized','outerposition',[0 0 1 1])
+for i=1:size(filenames,2)
+    subplot(1,size(filenames,2),i),imshow(filenames{i});
+    title(['Image Exposure ' num2str(exposures(i))])
+end
 
 % define lamda smoothing factor
 
@@ -73,17 +73,19 @@ fprintf('Solving for blue channel\n')
 save('gMatrix.mat','gRed', 'gGreen', 'gBlue');
 
 % Plot the response function for every colour channel
-% showG;
 
 % compute the hdr radiance map
 fprintf('Computing hdr image\n')
 hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
-figure,imshow(hdrMap);title('Irradiance HDR map');
 
-% compute the hdr luminance map from the hdr radiance map. It is needed as
-% an input for the Reinhard tonemapping operators.
-% fprintf('Computing luminance map\n');
-% luminance = 0.2125 * hdrMap(:,:,1) + 0.7154 * hdrMap(:,:,2) + 0.0721 * hdrMap(:,:,3);
+% show only the green channel
+allBlack = zeros(size(hdrMap, 1), size(hdrMap, 2), 'double');
+hdrMap = cat(3, allBlack, hdrMap(:,:,2), allBlack);
+
+% normalize the hdrMap
+hdrMap = hdrMap/max(max(max(hdrMap)));
+
+figure,imshow(hdrMap);title('Irradiance HDR map');
 
 % apply Reinhard local tonemapping operator to the hdr radiance map
 fprintf('Tonemapping - Reinhard local operator\n');
@@ -106,7 +108,6 @@ saturation = 0.6;
 [ldrGlobal, luminanceGlobal ] = reinhardGlobal( hdrMap, a, saturation );
 
 % Show only the green channels
-%%
 allBlack = zeros(size(ldrGlobal, 1), size(ldrGlobal, 2), 'double');
 ldrGlobal = cat(3, allBlack, ldrGlobal(:,:,2), allBlack);
 ldrLocal = cat(3, allBlack, ldrLocal(:,:,2), allBlack);
