@@ -121,7 +121,7 @@ figure,imshow(ldrLocal);
 title('Reinhard local operator');
 
 % Save hdr file as a 16 bit uint image
-uint16_hdrMap = uint16((2^16 - 1)*(hdrMap/max(max(max(hdrMap)))));
+uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
 imwrite(uint16_hdrMap,"hdrMap.tif");
 
 fprintf('Finished!\n');
