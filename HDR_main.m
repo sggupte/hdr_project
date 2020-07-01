@@ -73,6 +73,8 @@ fprintf('Solving for blue channel\n')
 save('gMatrix.mat','gRed', 'gGreen', 'gBlue');
 
 % Plot the response function for every colour channel
+temp = linspace(1,256,256);
+
 
 % compute the hdr radiance map
 fprintf('Computing hdr image\n')
@@ -117,5 +119,9 @@ title('Reinhard global operator');
 
 figure,imshow(ldrLocal);
 title('Reinhard local operator');
+
+% Save hdr file as a 16 bit uint image
+uint16_hdrMap = uint16((2^16 - 1)*(hdrMap/max(max(max(hdrMap)))));
+imwrite(uint16_hdrMap,"hdrMap.tif");
 
 fprintf('Finished!\n');
