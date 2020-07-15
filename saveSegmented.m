@@ -5,9 +5,10 @@ function saveSegmented(filenames, cutoff, numSeg)
     
     % Generate the mask
     image = imread(filenames{1});
-    mask = uint8(autoSeg(image, cutoff, numSeg));
+    mask = uint8(autoSeg(image, numSeg, cutoff));
     
     for i = 1:size(filenames,2)
+        image = imread(filenames{i});
         filename = filenames{i};
         
         [s,f] = regexp(filename, '(\d+)');
@@ -20,8 +21,6 @@ function saveSegmented(filenames, cutoff, numSeg)
         cd HDR_segmented/
         imwrite(seg_image,newName);
         cd ..
-        
-        image = imread(filenames{i});
     end
     
 end
