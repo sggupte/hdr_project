@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('HDR_Segmented/');
+dirName = ('HDR_Starters/Biopsy/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -80,12 +80,24 @@ temp = linspace(1,256,256);
 fprintf('Computing hdr image\n')
 hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
 
-% show only the green channel
-allBlack = zeros(size(hdrMap, 1), size(hdrMap, 2), 'double');
-hdrMap = cat(3, allBlack, hdrMap(:,:,2), allBlack);
+% Show only the green channel:
+% Comment this out if you do not want to isolate channels
+%allBlack = zeros(size(hdrMap, 1), size(hdrMap, 2), 'double');
+%hdrMap = cat(3, allBlack, hdrMap(:,:,2), allBlack);
 
-% normalize the hdrMap
-hdrMap = hdrMap/max(max(max(hdrMap)));
+%Normalize the hdrMap
+% Note: There are 2 ways to normalize
+% 1 - Normalize the entire image by its max
+% 2 - Normalize each channel by its max
+% Because green is a "lower signal" than red or blue in this case, it does
+% not appear in the hdrMap with as much visibility...
+% To make the image look better, visually, use the 2nd method.
+% The first method might make it easier to use for a quantatative analysis
+% but this has not been confirmed yet
+% hdrMap = hdrMap/max(max(max(hdrMap)));
+hdrMap(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
+hdrMap(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
+hdrMap(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
 
 figure,imshow(hdrMap);title('Irradiance HDR map');
 
@@ -110,9 +122,9 @@ saturation = 0.6;
 [ldrGlobal, luminanceGlobal ] = reinhardGlobal( hdrMap, a, saturation );
 
 % Show only the green channels
-allBlack = zeros(size(ldrGlobal, 1), size(ldrGlobal, 2), 'double');
-ldrGlobal = cat(3, allBlack, ldrGlobal(:,:,2), allBlack);
-ldrLocal = cat(3, allBlack, ldrLocal(:,:,2), allBlack);
+%allBlack = zeros(size(ldrGlobal, 1), size(ldrGlobal, 2), 'double');
+%ldrGlobal = cat(3, allBlack, ldrGlobal(:,:,2), allBlack);
+%ldrLocal = cat(3, allBlack, ldrLocal(:,:,2), allBlack);
 
 figure,imshow(ldrGlobal);
 title('Reinhard global operator');
@@ -121,7 +133,7 @@ figure,imshow(ldrLocal);
 title('Reinhard local operator');
 
 % Save hdr file as a 16 bit uint image
-uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
-imwrite(uint16_hdrMap,"hdrMap.tif");
+%uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
+%imwrite(uint16_hdrMap,"hdrMap.tif");
 
 fprintf('Finished!\n');
