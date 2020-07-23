@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('HDR_Starters/Biopsy/');
+dirName = ('SelectedOrchid/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -94,10 +94,11 @@ hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
 % To make the image look better, visually, use the 2nd method.
 % The first method might make it easier to use for a quantatative analysis
 % but this has not been confirmed yet
-% hdrMap = hdrMap/max(max(max(hdrMap)));
-hdrMap(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
-hdrMap(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
-hdrMap(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
+
+%hdrMap = hdrMap/max(max(max(hdrMap)));
+%hdrMap(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
+%hdrMap(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
+%hdrMap(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
 
 figure,imshow(hdrMap);title('Irradiance HDR map');
 
