@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('SelectedOrchid/');
+dirName = ('Memorial_SourceImages/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -43,7 +43,7 @@ end
 
 % define lamda smoothing factor
 
-l = 50;
+l = 1;
 
 fprintf('Computing weighting function\n');
 % precompute the weighting function value
@@ -138,3 +138,14 @@ title('Reinhard local operator');
 %imwrite(uint16_hdrMap,"hdrMap.tif");
 
 fprintf('Finished!\n');
+
+%% Additional Normalizations
+hdrMap2 = hdrMap/max(max(max(hdrMap)));
+figure, imshow(hdrMap2);
+title('Total Maximum Normalized');
+
+hdrMap3(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
+hdrMap3(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
+hdrMap3(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
+figure,imshow(hdrMap3);
+title('Channel Normalized');

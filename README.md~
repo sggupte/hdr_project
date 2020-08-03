@@ -1,0 +1,11 @@
+# hdr_project
+hdr Matlab implementation with fluorescence imaging
+
+Code based on https://www.researchgate.net/publication/327545585_Deep_dive_into_high_dynamic_range_imaging_a_Matlab_tutorial
+Adapted for green channel fluorescence imaging
+
+There are two scripts that should be run depending on the sample:
+Use the saveSegmented.m script to segment the images and save them in a folder.
+Then use the saveRegistered.m script to register all the images and save them in a folder.
+
+Run 
