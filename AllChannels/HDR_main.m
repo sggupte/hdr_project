@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('HDR_Segmented/originals/');
+dirName = ('../Images/Widefield/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -43,7 +43,7 @@ end
 
 % define lamda smoothing factor
 
-l = 50;
+l = 150;
 
 fprintf('Computing weighting function\n');
 % precompute the weighting function value
@@ -63,18 +63,30 @@ for i = 1:numExposures
  B(:,i) = log(exposures(i));
 end
 
-% solve the system for each color channel
-fprintf('Solving for red channel\n')
-[gRed,lERed]=gsolve(zRed, B, l, weights);
-fprintf('Solving for green channel\n')
-[gGreen,lEGreen]=gsolve(zGreen, B, l, weights);
-fprintf('Solving for blue channel\n')
-[gBlue,lEBlue]=gsolve(zBlue, B, l, weights);
-save('gMatrix.mat','gRed', 'gGreen', 'gBlue');
+% Calculate g functions for each channel, making sure each g function is
+% monotonic
+isItMonotonic = false;
+while(~isItMonotonic)
+    fprintf('lambda = %d\n',l);
+    
+    % solve the system for each color channel
+    fprintf('Solving for red channel\n')
+    [gRed,lERed]=gsolve(zRed, B, l, weights);
+    fprintf('Solving for green channel\n')
+    [gGreen,lEGreen]=gsolve(zGreen, B, l, weights);
+    fprintf('Solving for blue channel\n')
+    [gBlue,lEBlue]=gsolve(zBlue, B, l, weights);
+    save('gMatrix.mat','gRed', 'gGreen', 'gBlue');
+    
+    if(isMonotonic(gRed)&&isMonotonic(gGreen)&&isMonotonic(gBlue))
+        isItMonotonic = true;
+    else
+        l = l + 15; %Increase by increments of 15 until everything is monotonic
+    end
+end
 
 % Plot the response function for every colour channel
 temp = linspace(1,256,256);
-
 
 % compute the hdr radiance map
 fprintf('Computing hdr image\n')
@@ -149,3 +161,9 @@ hdrMap3(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
 hdrMap3(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
 figure,imshow(hdrMap3);
 title('Channel Normalized');
+
+%% Show the plots for each g function
+%figure; suptitle("CFR \lambda = 200");
+%subplot(3,1,1);plot(gRed);ylabel("Red");
+%subplot(3,1,2);plot(gGreen);ylabel("Green");
+%subplot(3,1,3);plot(gBlue);ylabel("Blue");
