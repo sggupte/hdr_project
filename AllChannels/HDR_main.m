@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/HDR_Segmented/originals/');
+dirName = ('HDR_Segmented/originals/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -34,14 +34,15 @@ numPixels = size(tmp,1) * size(tmp,2);
 numExposures = size(filenames,2);
 
 % Show the image sequence and the coresponding exposures
-%fprintf('Opening test images\n');
-%figure('units','normalized','outerposition',[0 0 1 1])
-%for i=1:size(filenames,2)
-%    subplot(1,size(filenames,2),i),imshow(filenames{i});
-%    title(['Image Exposure ' num2str(exposures(i))])
-%end
+fprintf('Opening test images\n');
+figure('units','normalized','outerposition',[0 0 1 1])
+for i=1:size(filenames,2)
+    subplot(1,size(filenames,2),i),imshow(filenames{i});
+    title(['Image Exposure ' num2str(exposures(i))])
+end
 
 % define lamda smoothing factor
+
 l = 50;
 
 fprintf('Computing weighting function\n');
@@ -74,6 +75,7 @@ save('gMatrix.mat','gRed', 'gGreen', 'gBlue');
 % Plot the response function for every colour channel
 temp = linspace(1,256,256);
 
+
 % compute the hdr radiance map
 fprintf('Computing hdr image\n')
 hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
@@ -93,7 +95,12 @@ hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
 % The first method might make it easier to use for a quantatative analysis
 % but this has not been confirmed yet
 
-figure,imshow(hdrMap(:,:,2),[]);title('Irradiance HDR map');
+%hdrMap = hdrMap/max(max(max(hdrMap)));
+%hdrMap(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
+%hdrMap(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
+%hdrMap(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
+
+figure,imshow(hdrMap);title('Irradiance HDR map');
 
 % apply Reinhard local tonemapping operator to the hdr radiance map
 fprintf('Tonemapping - Reinhard local operator\n');
@@ -113,25 +120,32 @@ a = 0.72;
 % for details
 saturation = 0.6;
 
-[ldrGlobal, luminanceGlobal ] = reinhardGlobal(hdrMap, a, saturation );
+[ldrGlobal, luminanceGlobal ] = reinhardGlobal( hdrMap, a, saturation );
 
 % Show only the green channels
 %allBlack = zeros(size(ldrGlobal, 1), size(ldrGlobal, 2), 'double');
 %ldrGlobal = cat(3, allBlack, ldrGlobal(:,:,2), allBlack);
 %ldrLocal = cat(3, allBlack, ldrLocal(:,:,2), allBlack);
 
-figure,imshow(ldrGlobal(:,:,2),[]);
+figure,imshow(ldrGlobal);
 title('Reinhard global operator');
 
-figure,imshow(ldrLocal(:,:,2),[]);
+figure,imshow(ldrLocal);
 title('Reinhard local operator');
 
 % Save hdr file as a 16 bit uint image
 %uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
-%imwrite(uint16_hdrMap,"hdrMap.hdr");
-
-% Save hdr file as a .hdr file
-fprintf('Saving in Radiance File Format\n');
-hdrwrite(hdrMap,"hdrMap.hdr");
+%imwrite(uint16_hdrMap,"hdrMap.tif");
 
 fprintf('Finished!\n');
+
+%% Additional Normalizations
+hdrMap2 = hdrMap/max(max(max(hdrMap)));
+figure, imshow(hdrMap2);
+title('Total Maximum Normalized');
+
+hdrMap3(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
+hdrMap3(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
+hdrMap3(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
+figure,imshow(hdrMap3);
+title('Channel Normalized');
