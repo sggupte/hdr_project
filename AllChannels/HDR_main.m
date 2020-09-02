@@ -35,7 +35,7 @@ numExposures = size(filenames,2);
 
 % Show the image sequence and the coresponding exposures
 fprintf('Opening test images\n');
-figure('units','normalized','outerposition',[0 0 1 1])
+figure('units','normalized','outerposition',[0 0 1 1]);
 for i=1:size(filenames,2)
     subplot(1,size(filenames,2),i),imshow(filenames{i});
     title(['Image Exposure ' num2str(exposures(i))])
@@ -43,7 +43,7 @@ end
 
 % define lamda smoothing factor
 
-l = 150;
+l = 250;
 
 fprintf('Computing weighting function\n');
 % precompute the weighting function value
@@ -81,7 +81,7 @@ while(~isItMonotonic)
     if(isMonotonic(gRed)&&isMonotonic(gGreen)&&isMonotonic(gBlue))
         isItMonotonic = true;
     else
-        l = l + 15; %Increase by increments of 15 until everything is monotonic
+        l = l + 25; %Increase by increments of 15 until everything is monotonic
     end
 end
 
@@ -163,7 +163,8 @@ figure,imshow(hdrMap3);
 title('Channel Normalized');
 
 %% Show the plots for each g function
-%figure; suptitle("CFR \lambda = 200");
-%subplot(3,1,1);plot(gRed);ylabel("Red");
-%subplot(3,1,2);plot(gGreen);ylabel("Green");
-%subplot(3,1,3);plot(gBlue);ylabel("Blue");
+sup = "CFR \lambda = " + l;
+figure; suptitle(sup);
+subplot(3,1,1);plot(gRed);ylabel("Red");
+subplot(3,1,2);plot(gGreen);ylabel("Green");
+subplot(3,1,3);plot(gBlue);ylabel("Blue");

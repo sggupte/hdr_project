@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/HDR_Segmented/originals/');
+dirName = ('../Images/Widefield/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -42,7 +42,7 @@ numExposures = size(filenames,2);
 %end
 
 % define lamda smoothing factor
-l = 50;
+l = 200;
 
 fprintf('Computing weighting function\n');
 % precompute the weighting function value
@@ -62,14 +62,25 @@ for i = 1:numExposures
  B(:,i) = log(exposures(i));
 end
 
-% solve the system for each color channel
-fprintf('Solving for red channel\n')
-[gRed,lERed]=gsolve(zRed, B, l, weights);
-fprintf('Solving for green channel\n')
-[gGreen,lEGreen]=gsolve(zGreen, B, l, weights);
-fprintf('Solving for blue channel\n')
-[gBlue,lEBlue]=gsolve(zBlue, B, l, weights);
-save('gMatrix.mat','gRed', 'gGreen', 'gBlue');
+isItMonotonic = false;
+while(~isItMonotonic)
+    fprintf('lambda = %d\n',l);
+    
+    % solve the system for each color channel
+    fprintf('Solving for red channel\n')
+    [gRed,lERed]=gsolve(zRed, B, l, weights);
+    fprintf('Solving for green channel\n')
+    [gGreen,lEGreen]=gsolve(zGreen, B, l, weights);
+    fprintf('Solving for blue channel\n')
+    [gBlue,lEBlue]=gsolve(zBlue, B, l, weights);
+    save('gMatrix.mat','gRed', 'gGreen', 'gBlue');
+    
+    if(isMonotonic(gRed)&&isMonotonic(gGreen)&&isMonotonic(gBlue))
+        isItMonotonic = true;
+    else
+        l = l + 50; %Increase by increments of 15 until everything is monotonic
+    end
+end
 
 % Plot the response function for every colour channel
 temp = linspace(1,256,256);
@@ -131,7 +142,7 @@ title('Reinhard local operator');
 %imwrite(uint16_hdrMap,"hdrMap.hdr");
 
 % Save hdr file as a .hdr file
-fprintf('Saving in Radiance File Format\n');
-hdrwrite(hdrMap,"hdrMap.hdr");
+%fprintf('Saving in Radiance File Format\n');
+%hdrwrite(hdrMap,"hdrMap.hdr");
 
 fprintf('Finished!\n');
