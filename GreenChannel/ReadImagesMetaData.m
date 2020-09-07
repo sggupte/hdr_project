@@ -12,9 +12,12 @@
 function [filenames, exposures, numExposures] = ReadImagesMetaData(dirName)
 
     filelist = dir(dirName);
+    correct = 0;
     for i = 3:size(filelist,1)
-        if ~strcmp(filelist(i).name, '.DS_Store')
-            filenames{i-3+1} = strcat(dirName,filelist(i).name); % +1 for Matlab indexing
+        if ~strcmp(filelist(i).name, '.DS_Store') && ~strcmp(filelist(i).name, '.') && ~strcmp(filelist(i).name, '..')
+            filenames{i-3-correct+1} = strcat(dirName,filelist(i).name); % +1 for Matlab indexing
+        else
+            correct = correct + 1;
         end
     end
 

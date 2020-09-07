@@ -17,7 +17,7 @@
 % paper "Recovering High Dynamic Range Radiance Maps from Photographs"
 % -------------------------------------------------------------------------
 
-clc;clear all;close all;
+%clc;clear all;close all;
 
 % Specify the directory that contains your range of differently exposed
 % pictures. Needs to have a '/' at the end.
@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/Widefieldc/Segmented/');
+dirName = ('../Images/Widefield7/Segmented/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -34,15 +34,15 @@ numPixels = size(tmp,1) * size(tmp,2);
 numExposures = size(filenames,2);
 
 % Show the image sequence and the coresponding exposures
-fprintf('Opening test images\n');
-figure('units','normalized','outerposition',[0 0 1 1])
-for i=1:size(filenames,2)
-    subplot(1,size(filenames,2),i),imshow(filenames{i});
-    title(['Image Exposure ' num2str(exposures(i))])
-end
+%fprintf('Opening test images\n');
+%figure('units','normalized','outerposition',[0 0 1 1])
+%for i=1:size(filenames,2)
+%    subplot(1,size(filenames,2),i),imshow(filenames{i});
+%    title(['Image Exposure ' num2str(exposures(i))])
+%end
 
 % define lamda smoothing factor
-l = 200;
+l = 100;
 
 fprintf('Computing weighting function\n');
 % precompute the weighting function value

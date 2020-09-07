@@ -7,16 +7,23 @@ function saveSegmented(filenames, cutoff, numSeg)
     image = imread(filenames{1});
     mask = uint8(autoSeg(image, numSeg, cutoff));
     
-    for i = 1:size(filenames,2)
-        image = imread(filenames{i});
-        filename = filenames{i};
+    i = 1;
+    for filepath = filenames
+        % This allows us to label the file and all folders with numbers
+        cFilepath = split(filepath,'/');
+        lenFilepath = size(cFilepath);
+        lenFilepath = lenFilepath(1);
+        filename = cFilepath{lenFilepath};
         
         [s,f] = regexp(filename, '(\d+)');
         numerator = filename(s(1):f(1));
         denominator = filename(s(2):f(2));
         newName = strcat('seg_',numerator,'_',denominator,'.tif');
         
+        image = imread(filenames{i});
+        
         seg_image = mask.*image;
+        i = i + 1;
         
         cd HDR_segmented/
         imwrite(seg_image,newName);
