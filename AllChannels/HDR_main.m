@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/Widefield/');
+dirName = ('../Images/Widefield/Originals/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -43,7 +43,7 @@ end
 
 % define lamda smoothing factor
 
-l = 250;
+l = 100;
 
 fprintf('Computing weighting function\n');
 % precompute the weighting function value

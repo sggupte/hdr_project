@@ -10,7 +10,7 @@
 function BW = autoSeg(im, numSeg, cutoff)
     imG = im(:,:,2);
     BW = zeros(size(imG));
-    BW(find(imG>cutoff)) = 1;
+    BW(find(im>cutoff)) = 1;
     BW = imfill(BW);
     BW = bwareafilt(logical(BW), numSeg);
     %imshow(BW);

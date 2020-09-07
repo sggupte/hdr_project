@@ -13,12 +13,20 @@ function [filenames, exposures, numExposures] = ReadImagesMetaData(dirName)
 
     filelist = dir(dirName);
     for i = 3:size(filelist,1)
-        filenames{i-3+1} = strcat(dirName,filelist(i).name); % +1 for Matlab indexing
+        if ~strcmp(filelist(i).name, '.DS_Store')
+            filenames{i-3+1} = strcat(dirName,filelist(i).name); % +1 for Matlab indexing
+        end
     end
 
     i = 1;
-    for filename = filenames
-        filename = filename{1};
+    for filepath = filenames
+        % This allows us to label the file and all folders with numbers
+        cFilepath = split(filepath,'/');
+        lenFilepath = size(cFilepath);
+        lenFilepath = lenFilepath(1);
+        filename = cFilepath{lenFilepath}; 
+        
+        % Use the numbers in the filename to calculate the exposure 
         [s f] = regexp(filename, '(\d+)');
         nominator = filename(s(1):f(1));
         denominator = filename(s(2):f(2));
