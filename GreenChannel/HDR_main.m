@@ -144,5 +144,34 @@ title('Reinhard local operator');
 % Save hdr file as a .hdr file
 %fprintf('Saving in Radiance File Format\n');
 %hdrwrite(hdrMap,"hdrMap.hdr");
+%% Additional Normalizations
+hdrMap2 = hdrMap/max(max(max(hdrMap)));
+figure, imshow(hdrMap2);
+title('Total Maximum Normalized');
+
+hdrMap3(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
+hdrMap3(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
+hdrMap3(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
+figure,imshow(hdrMap3);
+title('Channel Normalized');
+
+%% Show the plots for each g function
+sup = "CFR \lambda = " + l;
+figure; suptitle(sup);
+subplot(3,1,1);plot(gRed);ylabel("Red");
+subplot(3,1,2);plot(gGreen);ylabel("Green");
+subplot(3,1,3);plot(gBlue);ylabel("Blue");
+
+%% Show the image of the hdrMap Green Channel with green color
+dim = size(hdrMap);
+allBlack = zeros(dim(1),dim(2), 'double');
+greenImage = cat(3, allBlack, hdrMap3(:,:,2), allBlack);
+
+mask = autoSeg(greenImage, 1, 0.16);
+greenImage = double(mask).*greenImage;
+
+figure,imshow(greenImage);
+titleName = strcat('Green Channel (\lambda=', num2str(l), ')');
+title(titleName);
 
 fprintf('Finished!\n');

@@ -17,7 +17,7 @@
 % paper "Recovering High Dynamic Range Radiance Maps from Photographs"
 % -------------------------------------------------------------------------
 
-clc;clear all;close all;
+% clc;clear all;close all;
 
 % Specify the directory that contains your range of differently exposed
 % pictures. Needs to have a '/' at the end.
@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/10_M3T2B1_HR_FL/Segmented/');
+dirName = ('../Images/11_M1T1B1-HRWL/Originals/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -41,9 +41,14 @@ for i=1:size(filenames,2)
     title(['Image Exposure ' num2str(exposures(i))])
 end
 
+% Save all ldr images
+ldr1 = imread(filenames{1});
+ldr2 = imread(filenames{2});
+ldr3 = imread(filenames{3});
+
 % define lamda smoothing factor
 
-l = 100;
+l = 50;
 
 fprintf('Computing weighting function\n');
 % precompute the weighting function value
@@ -91,26 +96,6 @@ temp = linspace(1,256,256);
 % compute the hdr radiance map
 fprintf('Computing hdr image\n')
 hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
-
-% Show only the green channel:
-% Comment this out if you do not want to isolate channels
-%allBlack = zeros(size(hdrMap, 1), size(hdrMap, 2), 'double');
-%hdrMap = cat(3, allBlack, hdrMap(:,:,2), allBlack);
-
-%Normalize the hdrMap
-% Note: There are 2 ways to normalize
-% 1 - Normalize the entire image by its max
-% 2 - Normalize each channel by its max
-% Because green is a "lower signal" than red or blue in this case, it does
-% not appear in the hdrMap with as much visibility...
-% To make the image look better, visually, use the 2nd method.
-% The first method might make it easier to use for a quantatative analysis
-% but this has not been confirmed yet
-
-%hdrMap = hdrMap/max(max(max(hdrMap)));
-%hdrMap(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
-%hdrMap(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
-%hdrMap(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
 
 figure,imshow(hdrMap);title('Irradiance HDR map');
 
@@ -168,3 +153,15 @@ figure; suptitle(sup);
 subplot(3,1,1);plot(gRed);ylabel("Red");
 subplot(3,1,2);plot(gGreen);ylabel("Green");
 subplot(3,1,3);plot(gBlue);ylabel("Blue");
+
+%% Show the image of the hdrMap Green Channel with green color
+dim = size(hdrMap);
+allBlack = zeros(dim(1),dim(2), 'double');
+greenImage = cat(3, allBlack, hdrMap3(:,:,2), allBlack);
+
+mask = autoSeg(greenImage, 1, 0.16);
+greenImage = double(mask).*greenImage;
+
+figure,imshow(greenImage);
+titleName = strcat('Green Channel (\lambda=', num2str(l), ')');
+title(titleName);
