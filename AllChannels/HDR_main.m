@@ -17,7 +17,7 @@
 % paper "Recovering High Dynamic Range Radiance Maps from Photographs"
 % -------------------------------------------------------------------------
 
-% clc;clear all;close all;
+clc;clear all;close all;
 
 % Specify the directory that contains your range of differently exposed
 % pictures. Needs to have a '/' at the end.
@@ -25,7 +25,7 @@
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/11_M1T1B1-HRWL/Originals/');
+dirName = ('../Images/14_M1T1B1-HRWL/GraphCutsSegmented/Images/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -97,7 +97,7 @@ temp = linspace(1,256,256);
 fprintf('Computing hdr image\n')
 hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
 
-figure,imshow(hdrMap);title('Irradiance HDR map');
+%figure,imshow(hdrMap);title('Irradiance HDR map');
 
 % apply Reinhard local tonemapping operator to the hdr radiance map
 fprintf('Tonemapping - Reinhard local operator\n');
@@ -119,11 +119,6 @@ saturation = 0.6;
 
 [ldrGlobal, luminanceGlobal ] = reinhardGlobal( hdrMap, a, saturation );
 
-% Show only the green channels
-%allBlack = zeros(size(ldrGlobal, 1), size(ldrGlobal, 2), 'double');
-%ldrGlobal = cat(3, allBlack, ldrGlobal(:,:,2), allBlack);
-%ldrLocal = cat(3, allBlack, ldrLocal(:,:,2), allBlack);
-
 figure,imshow(ldrGlobal);
 title('Reinhard global operator');
 
@@ -131,8 +126,8 @@ figure,imshow(ldrLocal);
 title('Reinhard local operator');
 
 % Save hdr file as a 16 bit uint image
-uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
-imwrite(uint16_hdrMap,"hdrMap.tif");
+%uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
+%imwrite(uint16_hdrMap,"hdrMap.tif");
 
 fprintf('Finished!\n');
 

@@ -21,10 +21,10 @@ function saveSegmentedWMask(mask, filenames, foldername)
     save('mask.mat','mask');
     cd ..
     
-    mkdir Segmented
+    mkdir Images
     cd ..
     
-    folderCD = strcat(folderCD,'Segmented/');
+    folderCD = strcat(folderCD,'Images/');
     
     i = 1;
     for filepath = filenames
