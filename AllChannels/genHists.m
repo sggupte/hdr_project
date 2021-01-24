@@ -15,23 +15,22 @@
 %                       hist3
 
 
-function [hist1, hist2, hist3, histHDR] = genHists(ldr1,ldr2,ldr3,hdr,mask)
+function [hist1, hist2, hist3, histHDR] = genHists(ldr1,ldr2,ldr3,hdr,mask,scale)
 
-    [x,y,channels] = size(ldr1); % Assuming same size for all images
+    [x,y,channels] = size(hdr); % Assuming same size for all images
     
-    hist1 = zeros(1,256);
-    hist2 = zeros(1,256);
-    hist3 = zeros(1,256);
-    histHDR = zeros(1,256);
+    hist1 = zeros(1,256*scale);
+    hist2 = zeros(1,256*scale);
+    hist3 = zeros(1,256*scale);
+    histHDR = zeros(1,256*scale);
     
-    % Convert the hdr image in to a uint8 type
-    hdr_uint8 = uint8(hdr/max(max(max(hdr))) * 255);
+    ldr1 = double(ldr1)*scale;
+    ldr2 = double(ldr2)*scale;
+    ldr3 = double(ldr3)*scale;
     
-    % convert back to a double
-    ldr1 = double(ldr1);
-    ldr2 = double(ldr2);
-    ldr3 = double(ldr3);
-    hdr = double(hdr_uint8);
+    % Convert the hdr image in to a "uint8" type by scaling it and then
+    % flooring the values
+    hdr = floor(hdr/max(max(max(hdr)))*255*scale);
     
     % Where the mask is 0, set the image value to be -1
     % It will not be factored in to the final histogram now
@@ -49,7 +48,7 @@ function [hist1, hist2, hist3, histHDR] = genHists(ldr1,ldr2,ldr3,hdr,mask)
     for c = 1:channels % 3 channels
         for i = 1:x
             for j = 1:y
-                if(ldr1(i,j,c) ~= -1)
+                if(hdr(i,j,c) ~= -1)
                     ldrPix1 = ldr1(i,j,c);
                     ldrPix2 = ldr2(i,j,c);
                     ldrPix3 = ldr3(i,j,c);
@@ -69,8 +68,8 @@ function [hist1, hist2, hist3, histHDR] = genHists(ldr1,ldr2,ldr3,hdr,mask)
     
     figure;
     %suptitle('Histograms for Green Channel LDR Images and HDR Image');
-    subplot(2,2,1);plot(hist1);title('Neg4');xlim([1,256]);%ylim([1,maxY]);xlabel('Pixel Value');
-    subplot(2,2,2);plot(hist2);title('Neg5');xlim([1,256]);%ylim([1,maxY]);xlabel('Pixel Value');
-    subplot(2,2,3);plot(hist3);title('Neg6');xlim([1,256]);%ylim([1,maxY]);xlabel('Pixel Value');
-    subplot(2,2,4);plot(histHDR);title('HDR');xlim([1,256]);%ylim([1,maxY]);xlabel('Pixel Value');
+    subplot(2,2,1);plot(hist1);title('Neg4');xlim([1,256*scale]);%ylim([1,maxY]);xlabel('Pixel Value');
+    subplot(2,2,2);plot(hist2);title('Neg5');xlim([1,256*scale]);%ylim([1,maxY]);xlabel('Pixel Value');
+    subplot(2,2,3);plot(hist3);title('Neg6');xlim([1,256*scale]);%ylim([1,maxY]);xlabel('Pixel Value');
+    subplot(2,2,4);plot(histHDR);title('HDR');%ylim([1,maxY]);xlabel('Pixel Value');
 end
