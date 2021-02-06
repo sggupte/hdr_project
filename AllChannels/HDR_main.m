@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/14_M1T1B1-HRWL/GraphCutsSegmented/Images/');
+dirName = ('../Images/10_M3T2B1_HR_FL/Segmented/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
