@@ -17,7 +17,7 @@
 % paper "Recovering High Dynamic Range Radiance Maps from Photographs"
 % -------------------------------------------------------------------------
 
-clc;clear all;close all;
+%clc;clear all;close all;
 
 % Specify the directory that contains your range of differently exposed
 % pictures. Needs to have a '/' at the end.
@@ -25,7 +25,7 @@ clc;clear all;close all;
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 
-dirName = ('../Images/10_M3T2B1_HR_FL/Segmented/');
+dirName = ('../Images/HDRPhantoms02052021/0uM/Originals/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -100,30 +100,30 @@ hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
 %figure,imshow(hdrMap);title('Irradiance HDR map');
 
 % apply Reinhard local tonemapping operator to the hdr radiance map
-fprintf('Tonemapping - Reinhard local operator\n');
-saturation = 0.6;
-eps = 0.05;
-phi = 8;
-[ldrLocal, luminanceLocal, v, v1Final, sm ] = reinhardLocal(hdrMap, saturation, eps, phi);
+%fprintf('Tonemapping - Reinhard local operator\n');
+%saturation = 0.6;
+%eps = 0.05;
+%phi = 8;
+%[ldrLocal, luminanceLocal, v, v1Final, sm ] = reinhardLocal(hdrMap, saturation, eps, phi);
 
 % apply Reinhard global tonemapping oparator to the hdr radiance map
-fprintf('Tonemapping - Reinhard global operator\n');
+%fprintf('Tonemapping - Reinhard global operator\n');
 
 % specify resulting brightness of the tonampped image. See reinhardGlobal.m
 % for details
-a = 0.72;
+%a = 0.72;
 
 % specify saturation of the resulting tonemapped image. See reinhardGlobal.m
 % for details
-saturation = 0.6;
+%saturation = 0.6;
 
-[ldrGlobal, luminanceGlobal ] = reinhardGlobal( hdrMap, a, saturation );
+%[ldrGlobal, luminanceGlobal ] = reinhardGlobal( hdrMap, a, saturation );
 
-figure,imshow(ldrGlobal);
-title('Reinhard global operator');
+%figure,imshow(ldrGlobal);
+%title('Reinhard global operator');
 
-figure,imshow(ldrLocal);
-title('Reinhard local operator');
+%figure,imshow(ldrLocal);
+%title('Reinhard local operator');
 
 % Save hdr file as a 16 bit uint image
 %uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
@@ -154,7 +154,7 @@ dim = size(hdrMap);
 allBlack = zeros(dim(1),dim(2), 'double');
 greenImage = cat(3, allBlack, hdrMap3(:,:,2), allBlack);
 
-mask = autoSeg(greenImage, 1, 0.16);
+%mask = autoSeg(greenImage, 1, 0.16);
 greenImage = double(mask).*greenImage;
 
 figure,imshow(greenImage);

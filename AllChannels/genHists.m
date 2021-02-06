@@ -71,5 +71,5 @@ function [hist1, hist2, hist3, histHDR] = genHists(ldr1,ldr2,ldr3,hdr,mask,scale
     subplot(2,2,1);plot(hist1);title('Neg4');xlim([1,256*scale]);%ylim([1,maxY]);xlabel('Pixel Value');
     subplot(2,2,2);plot(hist2);title('Neg5');xlim([1,256*scale]);%ylim([1,maxY]);xlabel('Pixel Value');
     subplot(2,2,3);plot(hist3);title('Neg6');xlim([1,256*scale]);%ylim([1,maxY]);xlabel('Pixel Value');
-    subplot(2,2,4);plot(histHDR);title('HDR');%ylim([1,maxY]);xlabel('Pixel Value');
+    subplot(2,2,4);plot(histHDR);title('HDR');xlim([1,256*scale]);%ylim([1,maxY]);xlabel('Pixel Value');
 end
