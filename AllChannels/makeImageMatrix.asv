@@ -23,25 +23,18 @@ function [ zRed, zGreen, zBlue, sampleIndices ] = makeImageMatrix(filenames, mas
     
     % We need numSamples number of pixels
     % Input the mask in and sample randomly from inside the mask
-    maskedPix = find(mask == 1)';
-    
-    numPixels = length(maskedPix);
-    step = numPixels / numSamples;
-    indexIntervals = floor((1:step:numPixels));
-    sampleIndices = maskedPix(indexIntervals);
-
     maskSize = size(mask);
-%     maskedPix = zeros(1,sum(sum(mask)));
-%     maskIndex = 1;
-%     for i = 1:maskSize(1)
-%        for j = 1:maskSize(2)
-%            if(mask(i,j) == 1)
-%                %Add linear index to the maskedPix list
-%                maskedPix(maskIndex) = sub2ind(maskSize,i,j);
-%                maskIndex = maskIndex + 1;
-%           end
-%        end
-%     end
+    maskedPix = zeros(1,sum(sum(mask)));
+    maskIndex = 1;
+    for i = 1:maskSize(1)
+       for j = 1:maskSize(2)
+           if(mask(i,j) == 1)
+               %Add linear index to the maskedPix list
+               maskedPix(maskIndex) = sub2ind(maskSize,i,j);
+               maskIndex = maskIndex + 1;
+          end
+       end
+    end
     
     
     % Now we should have the linear indexes we can sample from
@@ -49,13 +42,12 @@ function [ zRed, zGreen, zBlue, sampleIndices ] = makeImageMatrix(filenames, mas
     %sampleIndices = maskedPix(randIndices)';
     
     % Proof that the image is sampling from the masked region
-%     im = zeros(maskSize(1),maskSize(2),3);
-%     for k = 1:length(sampleIndices)
-%         im(sampleIndices(k)) = 1;
-%     end
-%     figure;
-%     im(:,:,3) = 0.5*(1-mask);
-%     imshow(im)
+    %im = zeros(maskSize(1),maskSize(2),3);
+    %for k = 1:length(sampleIndices)
+    %    im(sampleIndices(k)) = 1;
+    %end
+    %im(:,:,3) = 0.5*(1-mask);
+    %imshow(im)
     
     % allocate resulting matrices
     zRed = zeros(numSamples, numExposures);

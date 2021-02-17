@@ -24,13 +24,13 @@
 % The images need to have exposure information encoded in the filename,
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
-
-dirName = ('../Images/HDRPhantoms02052021/0uM/Originals/');
+%% Read Images
+dirName = ('../Images/HDRPhantoms02052021/50uM/Segmented/Images/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
 tmp = imread(filenames{1});
-numPixels = size(tmp,1) * size(tmp,2);
+%numPixels = size(tmp,1) * size(tmp,2);
 numExposures = size(filenames,2);
 
 % Show the image sequence and the coresponding exposures
@@ -46,6 +46,7 @@ ldr1 = imread(filenames{1});
 ldr2 = imread(filenames{2});
 ldr3 = imread(filenames{3});
 
+%% Do the math
 % define lamda smoothing factor
 
 l = 50;
@@ -53,13 +54,17 @@ l = 50;
 fprintf('Computing weighting function\n');
 % precompute the weighting function value
 % for each pixel
-weights = [];
+weights = zeros(1,256);
 for i=1:256
     weights(i) = weight(i,1,256); % Creates the weight for each pixel and zmin,zmax
 end
 
 % load and sample the images
-[zRed, zGreen, zBlue, sampleIndices] = makeImageMatrix(filenames, numPixels);
+% ACTION ITEM: If you don't have a mask, uncomment the next line to use the
+% entire image
+%mask = ones(size(ldr1));
+%mask = mask(:,:,1);
+[zRed, zGreen, zBlue, sampleIndices] = makeImageMatrix(filenames, mask);
 
 B = zeros(size(zRed,1)*size(zRed,2), numExposures);
 
@@ -98,32 +103,6 @@ fprintf('Computing hdr image\n')
 hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
 
 %figure,imshow(hdrMap);title('Irradiance HDR map');
-
-% apply Reinhard local tonemapping operator to the hdr radiance map
-%fprintf('Tonemapping - Reinhard local operator\n');
-%saturation = 0.6;
-%eps = 0.05;
-%phi = 8;
-%[ldrLocal, luminanceLocal, v, v1Final, sm ] = reinhardLocal(hdrMap, saturation, eps, phi);
-
-% apply Reinhard global tonemapping oparator to the hdr radiance map
-%fprintf('Tonemapping - Reinhard global operator\n');
-
-% specify resulting brightness of the tonampped image. See reinhardGlobal.m
-% for details
-%a = 0.72;
-
-% specify saturation of the resulting tonemapped image. See reinhardGlobal.m
-% for details
-%saturation = 0.6;
-
-%[ldrGlobal, luminanceGlobal ] = reinhardGlobal( hdrMap, a, saturation );
-
-%figure,imshow(ldrGlobal);
-%title('Reinhard global operator');
-
-%figure,imshow(ldrLocal);
-%title('Reinhard local operator');
 
 % Save hdr file as a 16 bit uint image
 %uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
