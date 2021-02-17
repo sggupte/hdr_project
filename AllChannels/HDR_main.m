@@ -25,7 +25,7 @@
 % i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
 % has been exposed for 1/60 second. See readDir.m for details.
 %% Read Images
-dirName = ('../Images/HDRPhantoms02052021/50uM/Segmented/Images/');
+dirName = ('../Images/HDRPhantoms02052021/6_25uM/Segmented/Images/');
 
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
 
@@ -60,10 +60,11 @@ for i=1:256
 end
 
 % load and sample the images
-% ACTION ITEM: If you don't have a mask, uncomment the next line to use the
-% entire image
-%mask = ones(size(ldr1));
-%mask = mask(:,:,1);
+givenMask = input('Are you using a mask and have you loaded it to the workspace? (Y/N)\n','s');
+if(strcmpi(givenMask,'Y') == 0)
+    mask = ones(size(ldr1));
+    mask = mask(:,:,1);
+end
 [zRed, zGreen, zBlue, sampleIndices] = makeImageMatrix(filenames, mask);
 
 B = zeros(size(zRed,1)*size(zRed,2), numExposures);
