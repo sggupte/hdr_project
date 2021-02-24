@@ -35,11 +35,11 @@ numExposures = size(filenames,2);
 
 % Show the image sequence and the coresponding exposures
 fprintf('Opening test images\n');
-figure('units','normalized','outerposition',[0 0 1 1]);
-for i=1:size(filenames,2)
-    subplot(1,size(filenames,2),i),imshow(filenames{i});
-    title(['Image Exposure ' num2str(exposures(i))])
-end
+%figure('units','normalized','outerposition',[0 0 1 1]);
+%for i=1:size(filenames,2)
+    %subplot(1,size(filenames,2),i),imshow(filenames{i});
+    %title(['Image Exposure ' num2str(exposures(i))])
+%end
 
 % Save all ldr images
 ldr1 = imread(filenames{1});
@@ -48,7 +48,6 @@ ldr3 = imread(filenames{3});
 
 %% Do the math
 % define lamda smoothing factor
-
 l = 50;
 
 fprintf('Computing weighting function\n');
@@ -64,7 +63,11 @@ givenMask = input('Are you using a mask and have you loaded it to the workspace?
 if(strcmpi(givenMask,'Y') == 0)
     mask = ones(size(ldr1));
     mask = mask(:,:,1);
+    fprintf('Mask will not be used');
+else
+    fprintf('Mask will be used');
 end
+
 [zRed, zGreen, zBlue, sampleIndices] = makeImageMatrix(filenames, mask);
 
 B = zeros(size(zRed,1)*size(zRed,2), numExposures);
@@ -140,3 +143,12 @@ greenImage = double(mask).*greenImage;
 figure,imshow(greenImage);
 titleName = strcat('Green Channel (\lambda=', num2str(l), ')');
 title(titleName);
+
+%% Save images as normalized .tif files
+% maxIntensity = 8.4970;
+% manNormHDR = uint16((2^16 - 1)*double(mask).*hdrMap(:,:,2)/maxIntensity);
+% 
+% cd phantomImages
+% imwrite(manNormHDR,'norm6_25uM.tif');
+% 
+% cd ..
