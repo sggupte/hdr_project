@@ -21,13 +21,14 @@ if(ui ~= 2 && ui ~= 3)
     mask = mask(:,:,1);
 elseif(ui == 2)
 %   Option 2: Use a Thresholded Mask based on the green channel of the 
-%       first image in the folder
+%       first image in the folder (recommended for one channel but not all channel segmentation)
     fprintf('Using thresholded mask\n');
     numSeg = input('How many objects are there to segment in the image?\n');
     cutoff = input('What is the pixel cutoff?\n');
     mask = autoSeg(tmp,numSeg,cutoff);
 else
-%   Option 3: Use a Custom Mask or a Graph Cuts Mask
+%   Option 3: Use a Custom Mask or a Graph Cuts Mask (recommended for one
+%       channel or segmenting with all 3 channels)
     fprintf('Custom mask chosen\n');
     fprintf('Please load your mask into the workspace before running the next block of code\n');
 end

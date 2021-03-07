@@ -125,6 +125,9 @@ cd ..
 mkdir hdrImages
 
 % SAVE ALL YOUR IMAGES HERE!
+cd hdrImages
+imwrite(hdrMap2,'rawHDRData.tif');
+cd ..
 
 % Go back to the main  folder
 numDirectories = length(strsplit(imageLocation,'/'))-1;
