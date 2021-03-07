@@ -1,77 +1,87 @@
-% -------------------------------------------------------------------------
-% Implements a complete hdr and tonemapping cycle
+%% HDR Setup!
+%  Run this block to get filenames, to generate masks, and then save all the
+%  segmented images at the proper location
 %
-% 1.: Computes the camera response curve according to "Recovering High
-% Dynamic Range Radiance Maps from Photographs" by P. Debevec.
-% You need a wide range of differently exposed pictures from the same scene
-% to get good results.
-%
-% 2.: Recovers a hdr radiance map from the range of ldr pictures
-%
-% 3.: Tonemaps the resulting hdr radiance map according to "Photographic
-% Tone Reproduction for Digital Images" by Reinhard et al.
-% Both the simple global and the more complex local tonemapping operator
-% are applied to the hdr radiance map.
-%
-% Some code taken from Paul Debevec's implementation of his SIGGRAPH'97
-% paper "Recovering High Dynamic Range Radiance Maps from Photographs"
-% -------------------------------------------------------------------------
+%  IMPORTANT: Run this file from the AllChannels Folder otherwise it will
+%  not work
 
-%clc;clear all;close all;
+%  Read Images
+fprintf('Enter the location of your images and end the directory with a "/" at the end\n');
+imageLocation = input('../Images/','s');
 
-% Specify the directory that contains your range of differently exposed
-% pictures. Needs to have a '/' at the end.
-% The images need to have exposure information encoded in the filename,
-% i.e. the filename 'window_exp_1_60.jpg' would indicate that this image
-% has been exposed for 1/60 second. See readDir.m for details.
-%% Read Images
-dirName = ('../Images/HDRPhantoms02052021/50uM/Segmented/Images/');
+dirName = strcat('../Images/',imageLocation);
 
+% Load the file name and all the exposures
 [filenames, exposures, numExposures] = ReadImagesMetaData(dirName);
-
 tmp = imread(filenames{1});
-%numPixels = size(tmp,1) * size(tmp,2);
-numExposures = size(filenames,2);
 
-% Show the image sequence and the coresponding exposures
-fprintf('Opening test images\n');
-%figure('units','normalized','outerposition',[0 0 1 1]);
-%for i=1:size(filenames,2)
-    %subplot(1,size(filenames,2),i),imshow(filenames{i});
-    %title(['Image Exposure ' num2str(exposures(i))])
-%end
+%% Create a Mask (Depending on which option the user inputs, the following code will run)
+ui = input('Chose 1 (no mask), 2 (green thresholded mask), 3 (custom loaded mask)');
+if(ui ~= 2 || ui ~= 3)
+%   Option 1: don't Use a Mask
+    fprintf('No mask chosen\n');
+    mask = ones(size(cell2mat(ldrArray(1))));
+    mask = mask(:,:,1);
+elseif(ui ==2)
+%   Option 2: Use a Thresholded Mask based on the green channel of the 
+%       first image in the folder
+    fprintf('Using thresholded mask\n');
+    numSeg = input('How many objects are there to segment in the image?\n');
+    cutoff = input('What is the pixel cutoff?\n');
+    mask = autoSeg(tmp,numSeg,cutoff);
+else
+%   Option 3: Use a Custom Mask or a Graph Cuts Mask
+    fprintf('Custom mask chosen\n');
+    fprintf('Please load your mask into the workspace before running the next block of code\n');
+end
 
-% Save all ldr images
-ldr1 = imread(filenames{1});
-ldr2 = imread(filenames{2});
-ldr3 = imread(filenames{3});
+%% Save your Segmented Images
+saveSegmentedWMask(mask,
 
-%% Do the math
+%% Display a grid with the original images
+% Create an array of all the LDR images
+ldrArray = cell(1,size(filenames,2));
+
+% Show the original LDR Images and save them in ldrArray
+% Comment lines a,b,c,d, and e to hide the images
+fprintf('Opening test images\n');                           %a
+figure('units','normalized','outerposition',[0 0 1 1]);     %b
+suptitle('Original LDR Images Read');                       %c
+ for i=1:size(filenames,2)
+     subplot(1,size(filenames,2),i),imshow(filenames{i});   %d
+     title(['Image Exposure ' num2str(exposures(i))])       %e
+     ldrArray(i) = {imread(filenames{i})};                  %f
+ end
+
+%% Do some math
 % define lamda smoothing factor
-
 l = 50;
 
 fprintf('Computing weighting function\n');
-% precompute the weighting function value
-% for each pixel
+% precompute the weighting function value for each pixel
+% Use a triangle shaped weighting function that weights the center more
+% heavily than the edges to reduce saturation and low signal noise
 weights = zeros(1,256);
 for i=1:256
-    weights(i) = weight(i,1,256); % Creates the weight for each pixel and zmin,zmax
+    weights(i) = weight(i,1,256);
+end
+
+% Ask use to load a mask or use no mask
+givenMask = input('Are you using a mask and have you loaded it to the workspace? (Y/N)\n','s');
+if(strcmpi(givenMask,'Y') == 0)
+    mask = ones(size(cell2mat(ldrArray(1))));
+    mask = mask(:,:,1);
+    fprintf('Mask will not be used\n');
+else
+    fprintf('Mask will be used\n');
 end
 
 % load and sample the images
-givenMask = input('Are you using a mask and have you loaded it to the workspace? (Y/N)\n','s');
-if(strcmpi(givenMask,'Y') == 0)
-    mask = ones(size(ldr1));
-    mask = mask(:,:,1);
-end
-[zRed, zGreen, zBlue, sampleIndices] = makeImageMatrix(filenames, mask);
-
-B = zeros(size(zRed,1)*size(zRed,2), numExposures);
-
 fprintf('Creating exposures matrix B\n')
+[zRed, zGreen, zBlue, sampleIndices] = makeImageMatrix(filenames, mask);
+B = zeros(size(zRed,1)*size(zRed,2), numExposures);
 for i = 1:numExposures
- B(:,i) = log(exposures(i));
+    B(:,i) = log(exposures(i));
 end
 
 % Calculate g functions for each channel, making sure each g function is
@@ -91,36 +101,11 @@ while(~isItMonotonic)
     
     if(isMonotonic(gRed)&&isMonotonic(gGreen)&&isMonotonic(gBlue))
         isItMonotonic = true;
+        fprintf('Function is now monotonic\n')
     else
         l = l + 25; %Increase by increments of 15 until everything is monotonic
     end
 end
-
-% Plot the response function for every colour channel
-temp = linspace(1,256,256);
-
-% compute the hdr radiance map
-fprintf('Computing hdr image\n')
-hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
-
-%figure,imshow(hdrMap);title('Irradiance HDR map');
-
-% Save hdr file as a 16 bit uint image
-%uint16_hdrMap = uint16((2^16 - 1)*(hdrMap));
-%imwrite(uint16_hdrMap,"hdrMap.tif");
-
-fprintf('Finished!\n');
-
-%% Additional Normalizations
-hdrMap2 = hdrMap/max(max(max(hdrMap)));
-figure, imshow(hdrMap2);
-title('Total Maximum Normalized');
-
-hdrMap3(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
-hdrMap3(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
-hdrMap3(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
-figure,imshow(hdrMap3);
-title('Channel Normalized');
 
 %% Show the plots for each g function
 sup = "CFR \lambda = " + l;
@@ -129,23 +114,74 @@ subplot(3,1,1);plot(gRed);ylabel("Red");
 subplot(3,1,2);plot(gGreen);ylabel("Green");
 subplot(3,1,3);plot(gBlue);ylabel("Blue");
 
+%% Compute the radiance map
+% compute the hdr radiance map
+fprintf('Computing hdr image\n')
+hdrMap = hdr(filenames, gRed, gGreen, gBlue, weights, B);
+
+%% Additional Normalizations
+% hdrMap2: all channels are normalized by the largest value of all 3 channels
+hdrMap2 = hdrMap/max(max(max(hdrMap)));
+%figure, imshow(hdrMap2);
+%title('Total Maximum Normalized');
+
+% hdrMap3: each channel is normalized by the largest value in the channel
+hdrMap3(:,:,1) = hdrMap(:,:,1)/max(max(hdrMap(:,:,1)));
+hdrMap3(:,:,2) = hdrMap(:,:,2)/max(max(hdrMap(:,:,2)));
+hdrMap3(:,:,3) = hdrMap(:,:,3)/max(max(hdrMap(:,:,3)));
+%figure,imshow(hdrMap3);
+%title('Channel Normalized');
+
 %% Show the image of the hdrMap Green Channel with green color
 dim = size(hdrMap);
 allBlack = zeros(dim(1),dim(2), 'double');
 greenImage = cat(3, allBlack, hdrMap3(:,:,2), allBlack);
 
-%mask = autoSeg(greenImage, 1, 0.16);
 greenImage = double(mask).*greenImage;
 
-figure,imshow(greenImage);
-titleName = strcat('Green Channel (\lambda=', num2str(l), ')');
-title(titleName);
+%figure,imshow(greenImage);
+%titleName = strcat('Green Channel (\lambda=', num2str(l), ')');
+%title(titleName);
 
 %% Save images as normalized .tif files
-maxIntensity = 8.4970;
-manNormHDR = hdrMap(:,:,2)/maxIntensity;
+% This section of code is good if you want to compare the intensities of
+% several images to one image
 
-cd phantomImages
-imwrite(manNormHDR,'norm50uM.tif');
+% maxIntensity = 8.4970;    % preset the max intensity here that you want
+% to compare to
+% manNormHDR = uint16((2^16 - 1)*double(mask).*hdrMap(:,:,2)/maxIntensity);
+% 
+% cd phantomImages
+% imwrite(manNormHDR,'norm6_25uM.tif');
+% 
+% cd ..
 
+%% Save all standard normalizations in a folder outside the folder the images were retreived from
+cd ../Images
+cd(imageLocation)
 cd ..
+
+mkdir hdrImages
+
+% SAVE ALL YOUR IMAGES HERE!
+
+% Go back to the main  folder
+numDirectories = length(strsplit(imageLocation,'/'))-1;
+tmp = "";
+for i = 1:numDirectories
+    tmp = strcat(tmp,'../');
+end
+
+cd tmp
+cd AllChannels
+
+%% Scale to fit display range
+minHDR = min(min(hdrMap(:,:,2)));
+maxHDR = max(max(hdrMap(:,:,2)));
+hdrDisp = (hdrMap(:,:,2) - minHDR)/(maxHDR-minHDR);
+
+%figure;
+%imshow(hdrDisp);
+%title('HDR Scaled for Display Range');
+
+fprintf('Finished!\n');
