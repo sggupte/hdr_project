@@ -3,6 +3,7 @@
 hdr Matlab implementation with fluorescence imaging
 
 Code based on https://www.researchgate.net/publication/327545585_Deep_dive_into_high_dynamic_range_imaging_a_Matlab_tutorial
+DOI: 10.13140/RG.2.2.30129.43365
 Adapted for green channel fluorescence imaging and image segmentation
 
 ## Save the Original Images
