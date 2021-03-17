@@ -126,7 +126,10 @@ mkdir hdrImages
 
 % SAVE ALL YOUR IMAGES HERE!
 cd hdrImages
-imwrite(hdrMap2,'rawHDRData.tif');
+imwrite(hdrMap2,'overallNormalizedHDRData.tif');
+imwrite(hdrMap3,'channelNormalizedHDRData.tif');
+% You can manually add more lines of code to save your hdr Images
+
 cd ..
 
 % Go back to the main  folder
