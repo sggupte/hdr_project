@@ -9,7 +9,7 @@ Adapted for green channel fluorescence imaging and image segmentation
 ## Save the Original Images
 All images will be saves in the Originals folder which is a folder in the hdr_project directory
 
-1. Create a folder with your project name
+1. Create a folder with your project name inside the Images Folder besides the AllChannels Folder. This will help to easily save the segmented images in the right place and to retrieve the right images.
 
 2. Create a subfolder called "Originals"...
 IMPORTANT NOTE: This folder should contain ONLY the images you want to analyze and no other files. The code will not work if there are other files in this folder.
