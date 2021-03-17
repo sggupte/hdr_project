@@ -128,6 +128,8 @@ mkdir hdrImages
 cd hdrImages
 imwrite(hdrMap2,'overallNormalizedHDRData.tif');
 imwrite(hdrMap3,'channelNormalizedHDRData.tif');
+imwrite(hdrDisp,'greenDisplayHDR.tif');
+imwrite(greenImage,'greenChannelHDR.tif');
 % You can manually add more lines of code to save your hdr Images
 
 cd ..
